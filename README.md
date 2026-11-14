@@ -6,6 +6,7 @@ de estudio "Frío-Austral Track" y tres controles del OWASP Top 10.
 
 - **Módulo A** — Sincronización Offline-Online y Almacenamiento Local.
 - **Módulo B** — Evaluación Térmica y Alerta Crítica.
+- **Módulo Seguridad** - OWASP TOP 10 con menú interactivo
 
 El enunciado pide "programar/simular" la lógica; por eso no hay interfaz web ni
 app móvil, sino módulos de lógica pura más una demo de consola que reproduce el
