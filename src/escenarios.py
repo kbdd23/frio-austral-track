@@ -292,6 +292,73 @@ def ejecutar_rbac(base_local, datos) -> dict:
     return {"log": log}
 
 
+def ejecutar_a02_cifrado(base_local, datos) -> dict:
+    """Demuestra A02: cifrado en reposo (AES-256-GCM) y hash de credenciales."""
+    log = []
+    if base_local.cifrador is None:
+        log.append("  (la base no tiene cifrador configurado)")
+        return {"log": log, "cifrado_ok": False}
+
+    latitud_claro = -41.47
+    longitud_claro = -72.93
+    id_registro = base_local.insertar_lectura(
+        id_despacho=datos["id_despacho"],
+        temperatura=-19.0,
+        latitud=latitud_claro,
+        longitud=longitud_claro,
+        estado="Pendiente de sincronizar",
+    )
+    fila = base_local.conexion.execute(
+        "SELECT latitud, longitud FROM RegistroTemperatura WHERE id_registro = ?",
+        (id_registro,),
+    ).fetchone()
+    latitud_cifrada = fila["latitud"]
+    latitud_descifrada = base_local.cifrador.descifrar(latitud_cifrada)
+
+    log.append(f"  latitud en claro:       {latitud_claro}")
+    log.append(f"  latitud almacenada:     {latitud_cifrada[:28]}...")
+    log.append(f"  latitud descifrada:     {latitud_descifrada}")
+    cifrado_ok = float(latitud_descifrada) == latitud_claro
+    log.append(f"  ¿descifrado coincide?:  {cifrado_ok}")
+
+    hash_contrasena = crear_hash_contrasena("contrasena123", iteraciones=1000)
+    log.append(f"  hash de credencial:     {hash_contrasena[:34]}...")
+    log.append("  ¿reversible?:           no (PBKDF2 salado, unidireccional)")
+    return {"log": log, "cifrado_ok": cifrado_ok}
+
+
+def ejecutar_a03_injection(base_local, datos) -> dict:
+    """Demuestra A03: un payload de inyección SQL se trata como dato literal."""
+    log = []
+    payload = "x'; DROP TABLE RegistroTemperatura; --"
+    base_local.insertar_lectura(
+        id_despacho=datos["id_despacho"],
+        temperatura=-19.0,
+        latitud=-41.0,
+        longitud=-72.0,
+        estado="Pendiente de sincronizar",
+        id_evento_local=payload,
+    )
+    fila = base_local.conexion.execute(
+        "SELECT id_evento_local FROM RegistroTemperatura WHERE id_evento_local = ?",
+        (payload,),
+    ).fetchone()
+    tabla = base_local.conexion.execute(
+        "SELECT name FROM sqlite_master WHERE name = 'RegistroTemperatura'"
+    ).fetchone()
+
+    payload_literal = fila is not None and fila["id_evento_local"] == payload
+    tabla_intacta = tabla is not None
+    log.append(f"  payload enviado:        {payload}")
+    log.append(f"  guardado literal:       {payload_literal}")
+    log.append(f"  tabla intacta:          {tabla_intacta}")
+    return {
+        "log": log,
+        "payload_literal": payload_literal,
+        "tabla_intacta": tabla_intacta,
+    }
+
+
 def ver_flota(base_local):
     """Retorna los camiones con su estado y si tienen despacho en ruta."""
     return base_local.conexion.execute(

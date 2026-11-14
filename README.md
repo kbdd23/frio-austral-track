@@ -56,7 +56,7 @@ pip install -r requirements.txt
 ## Cómo ejecutar
 
 ```bash
-# Ejecutar la suite de tests (44 casos)
+# Ejecutar la suite de tests (46 casos)
 python3 -m unittest discover -s tests -v
 
 # Abrir la demo interactiva (ambas formas son válidas)
@@ -65,8 +65,9 @@ python3 src/demo.py
 ```
 
 La demo es un menú de 6 opciones: flujo completo, Módulo A aislado, Módulo B
-aislado, persistencia del temporizador, RBAC y visualización de la flota. Cada
-opción recrea sus bases, así que se pueden recorrer en cualquier orden.
+aislado, persistencia del temporizador, seguridad OWASP (A01/A02/A03) y
+visualización de la flota. Cada opción recrea sus bases, así que se pueden
+recorrer en cualquier orden.
 
 ## Módulo A — Sincronización Offline-Online
 

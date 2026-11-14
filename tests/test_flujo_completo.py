@@ -79,6 +79,27 @@ class TestFlujoCompleto(unittest.TestCase):
 
         self.assertEqual(len(filas), 35)
 
+    def test_a02_cifra_geolocalizacion(self):
+        base_local, _base_cloud = escenarios.crear_bases()
+        datos = escenarios.sembrar_operacion(
+            base_local, iteraciones=ITERACIONES_PRUEBA
+        )
+
+        resultado = escenarios.ejecutar_a02_cifrado(base_local, datos)
+
+        self.assertTrue(resultado["cifrado_ok"])
+
+    def test_a03_injection_se_trata_como_dato(self):
+        base_local, _base_cloud = escenarios.crear_bases()
+        datos = escenarios.sembrar_operacion(
+            base_local, iteraciones=ITERACIONES_PRUEBA
+        )
+
+        resultado = escenarios.ejecutar_a03_injection(base_local, datos)
+
+        self.assertTrue(resultado["payload_literal"])
+        self.assertTrue(resultado["tabla_intacta"])
+
 
 if __name__ == "__main__":
     unittest.main()

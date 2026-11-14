@@ -29,9 +29,17 @@ MENU = """
  2) Módulo A — corte de red y sincronización diferida
  3) Módulo B — anomalía persistente y alerta
  4) Módulo B — persistencia tras "reinicio" del proceso
- 5) RBAC — conductor vs gerente
+ 5) Seguridad OWASP (A01/A02/A03)
  6) Ver flota
  0) Salir
+"""
+
+SUBMENU_SEGURIDAD = """
+  --- Seguridad OWASP ---
+  1) A01 — RBAC: conductor vs gerente
+  2) A02 — Cifrado AES-256-GCM + hash PBKDF2
+  3) A03 — Injection: payload bloqueado
+  0) Volver
 """
 
 
@@ -80,10 +88,30 @@ def _opcion_4() -> None:
 
 
 def _opcion_5() -> None:
-    base_local, _base_cloud = escenarios.crear_bases()
-    datos = escenarios.sembrar_operacion(base_local)
-    resultado = escenarios.ejecutar_rbac(base_local, datos)
-    _imprimir_log(resultado)
+    """Submenú de seguridad OWASP (A01, A02, A03)."""
+    print(SUBMENU_SEGURIDAD)
+    while True:
+        try:
+            subopcion = input("  Subopción: ").strip()
+        except EOFError:
+            print()
+            return
+        if subopcion == "0":
+            return
+
+        base_local, _base_cloud = escenarios.crear_bases()
+        datos = escenarios.sembrar_operacion(base_local)
+
+        if subopcion == "1":
+            _imprimir_log(escenarios.ejecutar_rbac(base_local, datos))
+        elif subopcion == "2":
+            _imprimir_log(escenarios.ejecutar_a02_cifrado(base_local, datos))
+        elif subopcion == "3":
+            _imprimir_log(escenarios.ejecutar_a03_injection(base_local, datos))
+        else:
+            print("  Subopción inválida.")
+        print()
+        print(SUBMENU_SEGURIDAD)
 
 
 def _opcion_6() -> None:
